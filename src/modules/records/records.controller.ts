@@ -8,7 +8,7 @@ import { UpdateRecordDto } from './dto/update-record.dto';
 import { GetRecordsDto } from './dto/get-records.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
-import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiOperation, ApiBody, ApiResponse, ApiParam } from '@nestjs/swagger';
 
 @ApiTags('Records')
 @ApiBearerAuth()
@@ -24,24 +24,33 @@ export class RecordsController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new financial record' })
+  @ApiBody({ type: CreateRecordDto })
+  @ApiResponse({ status: 201, description: 'Record created successfully' })
+  @ApiResponse({ status: 400, description: 'Validation Constraints Failed (e.g. invalid type ENUM)' })
   async create(@Request() req, @Body() dto: CreateRecordDto) {
     return this.createRecordUseCase.execute(req.user.id, dto);
   }
 
   @Get()
   @ApiOperation({ summary: 'Get records (with pagination, filters, and search)' })
+  @ApiResponse({ status: 200, description: 'Returns paginated records array' })
   async findAll(@Request() req, @Query() dto: GetRecordsDto) {
     return this.getRecordsUseCase.execute(req.user.id, dto);
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update a financial record' })
+  @ApiParam({ name: 'id', description: 'UUID of the record to update' })
+  @ApiBody({ type: UpdateRecordDto })
+  @ApiResponse({ status: 200, description: 'Record updated successfully' })
   async update(@Request() req, @Param('id') id: string, @Body() dto: UpdateRecordDto) {
     return this.updateRecordUseCase.execute(id, req.user.id, dto);
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Soft delete a financial record' })
+  @ApiParam({ name: 'id', description: 'UUID of the record to delete' })
+  @ApiResponse({ status: 200, description: 'Record securely soft deleted' })
   async remove(@Request() req, @Param('id') id: string) {
     return this.deleteRecordUseCase.execute(id, req.user.id);
   }
