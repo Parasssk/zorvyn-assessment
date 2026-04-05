@@ -6,6 +6,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { CommonModule } from './common/common.module';
 import { UsersModule } from './modules/users/users.module';
 import { RecordsModule } from './modules/records/records.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { RecordsModule } from './modules/records/records.module';
     AuthModule,
     UsersModule,
     RecordsModule,
+    DashboardModule,
   ],
   controllers: [],
   providers: [],
