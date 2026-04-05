@@ -2,9 +2,12 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { Logger } from 'nestjs-pino';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  app.useLogger(app.get(Logger));
 
   // Global Validation Pipe
   app.useGlobalPipes(
@@ -14,11 +17,14 @@ async function bootstrap() {
       transform: true,
     }),
   );
+  
+  // Global Exception Filter
+  app.useGlobalFilters(new HttpExceptionFilter());
 
   // Swagger Setup
   const config = new DocumentBuilder()
-    .setTitle('Finance Data Processing API')
-    .setDescription('The Finance Backend API documentation')
+    .setTitle('Finance Tracker API')
+    .setDescription('Production-ready finance dashboard backend')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
