@@ -1,13 +1,25 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 
 @Injectable()
 export class GetTrendsUseCase {
   constructor(private prisma: PrismaService) {}
 
-  async execute(userId: string) {
+  async execute(userId: string, startDate?: string, endDate?: string) {
+    if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+      throw new BadRequestException('start date cannot be after end date');
+    }
+
+    const where: any = { userId, deletedAt: null, type: 'EXPENSE' };
+
+    if (startDate || endDate) {
+      where.date = {};
+      if (startDate) where.date.gte = new Date(startDate);
+      if (endDate) where.date.lte = new Date(endDate);
+    }
+
     const records = await this.prisma.record.findMany({
-      where: { userId, deletedAt: null, type: 'EXPENSE' },
+      where,
       orderBy: { date: 'asc' },
     });
 
