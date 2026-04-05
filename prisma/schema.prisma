@@ -1,0 +1,60 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      Role     @default(VIEWER)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  records   Record[]
+
+  @@map("users")
+}
+
+model Record {
+  id        String   @id @default(uuid())
+  userId    String
+  amount    Float
+  type      TransactionType
+  category  String
+  date      DateTime
+  notes     String?
+
+  // Smart logic fields
+  isDuplicate Boolean @default(false)
+
+  // Soft delete / Audit fields
+  deletedAt DateTime?
+  deletedBy String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("records")
+}
+
+enum Role {
+  ADMIN
+  ANALYST
+  VIEWER
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
